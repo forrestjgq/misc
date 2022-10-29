@@ -37,6 +37,7 @@ class Secure:
         print(f'\tjob: {self.base * self.job}')
         print(f'\thouse: {self.base * self.house}')
         print(f'\tinjure: {self.base * self.injure}')
+        print(f'\ttotal: {self.base * self.percent()}')
 
 
 class Salary:
@@ -94,7 +95,7 @@ class Salary:
 
     def real_salaries(self):
         """
-        @return: list of real salary monthly: taxed salary + personal house fund + company house fund
+        @return: list of real salary monthly: after tax salary + personal house fund + company house fund
         """
         return [v + self.secure.house * self.secure.base + self.secure_company.house * self.secure_company.base for v in self.salaries()]
 
@@ -141,7 +142,7 @@ class Service:
         return self.payed * 0.8 * 0.4 - 7000
 
     def print(self):
-        print(f"Service: month paid {int(self.payed)}, tax {int(self.tax)}, taxed {int(self.income)} for one year {int(self.year)}\n")
+        print(f"Service: month paid {int(self.payed)}, tax {int(self.tax)}, after tax {int(self.income)}, for one year {int(self.year)}\n")
 
 
 class Company:
@@ -182,8 +183,8 @@ class Splitter:
     def calc(self):
         sep = 5
         as_salary = self.salary
-        max_got = (0, 0, 0, 0)  # as_salary,  service pay, got, card
-        max_cared = (0, 0, 0)  # as_salary, cared, service pay
+        max_got = (0, 0, 0, 0, 0)  # as_salary,  as_service, got, card, company to company
+        max_cared = (0, 0, 0, 0, 0)  # as_salary, as_service, got, cared
         compnay = Company(self.salary, self._secure_base)
         company_total_pay = compnay.expanse()  # how much company should pay in total
         print("="*120)
@@ -195,13 +196,21 @@ class Splitter:
             if as_service < 0:
                 as_service = 0
             got, cared = self.split(as_salary, as_service)
-            # print(f'{int(as_salary)} as salary, {int(as_service)} as service: got {int(got)} cared {int(cared)}')
+            # print(f'as salary {int(as_salary)}, as service {int(as_service)}: salary for year {int(got)}  plus house fund {int(cared)}')
+
+            # this shows details when salary is set to 9000, change False to True to enable it
+            if False and as_salary == 9000:
+                print('*'*120)
+                print(f'as salary {int(as_salary)}, as service {int(as_service)}, company to company {int(company_to_company)}: salary for year {int(got)}  plus house fund {int(cared)}')
+                self.split(as_salary, as_service, print=True)
+                print('*' * 120)
+
             if got > max_got[2]:
-                max_got = (as_salary, as_service, got, cared)
+                max_got = (as_salary, as_service, got, cared, company_to_company)
             if cared > max_cared[2]:
-                max_cared = (as_salary, as_service, got, cared)
+                max_cared = (as_salary, as_service, got, cared, company_to_company)
             as_salary -= sep
-        print(f"According to salary: as salary {int(max_got[0])}, as service {int(max_got[1])}:")
+        print(f"According to salary: as salary {int(max_got[0])}, as service {int(max_got[1])} company to company {int(company_to_company)}:")
         print(f">>>>>> result: salary for year {int(max_got[2])}, plus house fund: {int(max_got[3])}")
         print("\ndetailed:")
         self.split(max_got[0], max_got[1], print=True)
@@ -250,7 +259,7 @@ if __name__ == "__main__":
     extra = 525  # extra from salary
 
     print("paid means how much you actually got from salary, and cared will plus house fund")
-    f = Formal(salary+extra, secure_base, tax_free)
+    f = Formal(salary+extra, min(secure_base, salary+extra), tax_free)
     f.calc()
 
     s = Splitter(salary + extra, tax_free, secure_base)
