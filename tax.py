@@ -28,16 +28,20 @@ class Secure:
         return self.pension + self.medical + self.job + self.house + self.injure
 
     def expense(self):
-        return self.percent() * self.base + self.extra
+        e = self.percent() * self.base
+        if e > 0:
+            return e + self.extra
+        return e
 
     def print(self, prefix: str):
-        print(f'{prefix} security based on {self.base}:')
-        print(f'\tpension: {self.base * self.pension}')
-        print(f'\tmedical: {self.base * self.medical}')
-        print(f'\tjob: {self.base * self.job}')
-        print(f'\thouse: {self.base * self.house}')
-        print(f'\tinjure: {self.base * self.injure}')
-        print(f'\ttotal: {self.base * self.percent()}')
+        if self.base > 0:
+            print(f'{prefix} security based on {self.base}:')
+            print(f'\tpension: {self.base * self.pension}')
+            print(f'\tmedical: {self.base * self.medical}')
+            print(f'\tjob: {self.base * self.job}')
+            print(f'\thouse: {self.base * self.house}')
+            print(f'\tinjure: {self.base * self.injure}')
+            print(f'\ttotal: {self.base * self.percent()}')
 
 
 class Salary:
@@ -100,6 +104,8 @@ class Salary:
         return [v + self.secure.house * self.secure.base + self.secure_company.house * self.secure_company.base for v in self.salaries()]
 
     def print(self):
+        if self.salary == 0:
+            return
         print(f'Salary Details:')
         print('-'*30)
         paid = [int(f) for f in self.salaries()]
@@ -135,11 +141,12 @@ class Service:
             return 0
         if self.payed < 4000:
             return (self.payed - 800) * 0.2
-        if self.payed < 20000:
-            return self.payed * 0.8 * 0.2
-        if self.payed < 50000:
-            return self.payed * 0.8 * 0.3 - 2000
-        return self.payed * 0.8 * 0.4 - 7000
+        taxin = self.payed * 0.8
+        if taxin < 20000:
+            return taxin * 0.2
+        if taxin < 50000:
+            return taxin * 0.3 - 2000
+        return taxin * 0.4 - 7000
 
     def print(self):
         print(f"Service: month paid {int(self.payed)}, tax {int(self.tax)}, after tax {int(self.income)}, for one year {int(self.year)}\n")
