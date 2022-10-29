@@ -265,10 +265,11 @@ if __name__ == "__main__":
     tax_free = 2000  # extra tax free
     extra = 525  # extra from salary
 
+    print(f'salary {salary} security max base {secure_base} tax free {tax_free} extra {extra}')
     print("paid means how much you actually got from salary, and cared will plus house fund")
-    f = Formal(salary+extra, min(secure_base, salary+extra), tax_free)
-    f.calc()
-
     s = Splitter(salary + extra, tax_free, secure_base)
     s.calc()
+
+    f = Formal(salary+extra, min(secure_base, salary+extra), tax_free)
+    f.calc()
 
